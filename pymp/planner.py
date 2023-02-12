@@ -64,11 +64,7 @@ class Planner:
         """
         self.urdf = urdf
         if not srdf:
-            srdf = urdf.replace(".urdf", ".srdf")
             logger.info("No SRDF provided. Use SRDF at {}.".format(srdf))
-        if not os.path.exists(srdf):
-            # TODO(jigu): generate SRDF if not exists
-            raise FileNotFoundError(srdf)
         self.srdf = srdf
 
         # Initialize Pinocchio model
@@ -78,7 +74,8 @@ class Planner:
             urdf, use_convex=use_convex, base_pose=base_pose
         )
         self.robot.initCollisionPairs()
-        self.robot.removeCollisionPairsFromSRDF(srdf)
+        if self.srdf:
+            self.robot.removeCollisionPairsFromSRDF(srdf)
 
         # Setup planning interface
         self.set_planning_interface(user_joint_names, planning_group, ee_link_name)
